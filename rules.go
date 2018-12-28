@@ -20,10 +20,10 @@ func init() {
 }
 
 func ruleLastPossibility(s *Sudoku) (bool, int) {
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
+	for y := 0; y < RowSize; y++ {
+		for x := 0; x < RowSize; x++ {
 			if s.possGrid[x][y].count == 1 {
-				for z := 0; z < rowSize; z++ {
+				for z := 0; z < RowSize; z++ {
 					if s.possGrid[x][y].possibilities[z] {
 						s.Grid[x][y] = z + 1
 						s.possGrid[x][y].possibilities[z] = false
@@ -42,13 +42,13 @@ func ruleLastPossibility(s *Sudoku) (bool, int) {
 }
 
 func ruleOnlyPossiblePlaceInRow(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
-		for y := 0; y < rowSize; y++ {
+	for z := 0; z < RowSize; z++ {
+		for y := 0; y < RowSize; y++ {
 			found := false
 			possCount := 0
 			lastPlace := 0
 
-			for x := 0; x < rowSize; x++ {
+			for x := 0; x < RowSize; x++ {
 				if s.Grid[x][y] == z+1 {
 					found = true
 					break
@@ -60,7 +60,7 @@ func ruleOnlyPossiblePlaceInRow(s *Sudoku) (bool, int) {
 
 			if !found && possCount == 1 {
 				s.Grid[lastPlace][y] = z + 1
-				for a := 0; a < rowSize; a++ {
+				for a := 0; a < RowSize; a++ {
 					s.possGrid[lastPlace][y].possibilities[a] = false
 				}
 				s.possGrid[lastPlace][y].count = 0
@@ -76,13 +76,13 @@ func ruleOnlyPossiblePlaceInRow(s *Sudoku) (bool, int) {
 }
 
 func ruleOnlyPossiblePlaceInCol(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
-		for x := 0; x < rowSize; x++ {
+	for z := 0; z < RowSize; z++ {
+		for x := 0; x < RowSize; x++ {
 			found := false
 			possCount := 0
 			lastPlace := 0
 
-			for y := 0; y < rowSize; y++ {
+			for y := 0; y < RowSize; y++ {
 				if s.Grid[x][y] == z+1 {
 					found = true
 					break
@@ -94,7 +94,7 @@ func ruleOnlyPossiblePlaceInCol(s *Sudoku) (bool, int) {
 
 			if !found && possCount == 1 {
 				s.Grid[x][lastPlace] = z + 1
-				for a := 0; a < rowSize; a++ {
+				for a := 0; a < RowSize; a++ {
 					s.possGrid[x][lastPlace].possibilities[a] = false
 				}
 				s.possGrid[x][lastPlace].count = 0
@@ -109,9 +109,9 @@ func ruleOnlyPossiblePlaceInCol(s *Sudoku) (bool, int) {
 }
 
 func ruleOnlyPossiblePlaceInBox(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
-		for y := 0; y < rowSize; y += GridSize {
-			for x := 0; x < rowSize; x += GridSize {
+	for z := 0; z < RowSize; z++ {
+		for y := 0; y < RowSize; y += GridSize {
+			for x := 0; x < RowSize; x += GridSize {
 				found := false
 				possCount := 0
 				lastPlaceX, lastPlaceY := 0, 0
@@ -131,7 +131,7 @@ func ruleOnlyPossiblePlaceInBox(s *Sudoku) (bool, int) {
 
 				if !found && possCount == 1 {
 					s.Grid[lastPlaceX][lastPlaceY] = z + 1
-					for a := 0; a < rowSize; a++ {
+					for a := 0; a < RowSize; a++ {
 						s.possGrid[lastPlaceX][lastPlaceY].possibilities[a] = false
 					}
 					s.possGrid[lastPlaceX][lastPlaceY].count = 0
@@ -147,9 +147,9 @@ func ruleOnlyPossiblePlaceInBox(s *Sudoku) (bool, int) {
 }
 
 func ruleMustBeInCertainBox(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
-		for y := 0; y < rowSize; y += GridSize {
-			for x := 0; x < rowSize; x += GridSize {
+	for z := 0; z < RowSize; z++ {
+		for y := 0; y < RowSize; y += GridSize {
+			for x := 0; x < RowSize; x += GridSize {
 				row, col := -1, -1
 				breakingRow, breakingCol := false, false
 
@@ -172,7 +172,7 @@ func ruleMustBeInCertainBox(s *Sudoku) (bool, int) {
 				}
 
 				if !breakingRow && row != -1 {
-					for xx := 0; xx < rowSize; xx++ {
+					for xx := 0; xx < RowSize; xx++ {
 						if xx < x || xx >= x+GridSize {
 							/* if not in that box, remove */
 							if s.possGrid[xx][row].possibilities[z] {
@@ -185,7 +185,7 @@ func ruleMustBeInCertainBox(s *Sudoku) (bool, int) {
 					}
 				}
 				if !breakingCol && col != -1 {
-					for yy := 0; yy < rowSize; yy++ {
+					for yy := 0; yy < RowSize; yy++ {
 						if yy < y || yy >= y+GridSize {
 							/* if not in that box, remove */
 							if s.possGrid[col][yy].possibilities[z] {
@@ -212,14 +212,14 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 		return false, 0
 	}
 
-	for ii := 0; ii < rowSize; ii++ {
+	for ii := 0; ii < RowSize; ii++ {
 		if set.possibilities[ii] {
 			subset := set
 			subset.possibilities[ii] = false
 			subset.count--
 
 			subsetstr := ""
-			for xx := 0; xx < rowSize; xx++ {
+			for xx := 0; xx < RowSize; xx++ {
 				if subset.possibilities[xx] {
 					subsetstr += string(xx + 1 + 48)
 				}
@@ -230,13 +230,13 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 			score += points
 
 			matches := 0
-			for xx := 0; xx < rowSize; xx++ {
+			for xx := 0; xx < RowSize; xx++ {
 				if possibleIntersects(subset, s.possGrid[xx][y]) {
 					matches++
 				}
 			}
 			if matches == subset.count {
-				for xx := 0; xx < rowSize; xx++ {
+				for xx := 0; xx < RowSize; xx++ {
 					if subset.count < s.possGrid[xx][y].count &&
 						possibleIntersects(subset, s.possGrid[xx][y]) {
 						possibleIntersect(&s.possGrid[xx][y], subset)
@@ -248,13 +248,13 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 			}
 
 			matches = 0
-			for yy := 0; yy < rowSize; yy++ {
+			for yy := 0; yy < RowSize; yy++ {
 				if possibleIntersects(subset, s.possGrid[x][yy]) {
 					matches++
 				}
 			}
 			if matches == subset.count {
-				for yy := 0; yy < rowSize; yy++ {
+				for yy := 0; yy < RowSize; yy++ {
 					if subset.count < s.possGrid[x][yy].count &&
 						possibleIntersects(subset, s.possGrid[x][yy]) {
 						possibleIntersect(&s.possGrid[x][yy], subset)
@@ -298,32 +298,30 @@ func ruleEliminateSubsetExtras(s *Sudoku) (bool, int) {
 	ret := false
 	score := 0
 
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
-			if s.possGrid[x][y].count > 1 {
-				/* if it is not the largest possible set in the area */
-				applied, points := ruleEliminateSubsetExtrasSlave(s, s.possGrid[x][y], x, y)
+	forEachPosition(func(x, y int) {
+		if s.possGrid[x][y].count > 1 {
+			/* if it is not the largest possible set in the area */
+			applied, points := ruleEliminateSubsetExtrasSlave(s, s.possGrid[x][y], x, y)
 
-				ret = ret || applied
-				score += points
-			}
+			ret = ret || applied
+			score += points
 		}
-	}
+	})
 
 	return ret, score
 }
 
 func ruleXwingRow(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
+	for z := 0; z < RowSize; z++ {
 		foundX1, foundX2 := 0, 0
 		foundY1, foundY2 := 0, 0
 		yCount := 0
 
-		for y := 0; y < rowSize; y++ {
+		for y := 0; y < RowSize; y++ {
 			xCount := 0
 			x1, x2 := 0, 0
 
-			for x := 0; x < rowSize; x++ {
+			for x := 0; x < RowSize; x++ {
 				if s.possGrid[x][y].possibilities[z] {
 					xCount++
 
@@ -364,7 +362,7 @@ func ruleXwingRow(s *Sudoku) (bool, int) {
 
 		if yCount == 2 {
 			found := false
-			for yy := 0; yy < rowSize; yy++ {
+			for yy := 0; yy < RowSize; yy++ {
 				if yy == foundY1 || yy == foundY2 {
 					continue
 				}
@@ -395,16 +393,16 @@ func ruleXwingRow(s *Sudoku) (bool, int) {
 }
 
 func ruleXwingCol(s *Sudoku) (bool, int) {
-	for z := 0; z < rowSize; z++ {
+	for z := 0; z < RowSize; z++ {
 		foundX1, foundX2 := 0, 0
 		foundY1, foundY2 := 0, 0
 		xCount := 0
 
-		for x := 0; x < rowSize; x++ {
+		for x := 0; x < RowSize; x++ {
 			yCount := 0
 			y1, y2 := 0, 0
 
-			for y := 0; y < rowSize; y++ {
+			for y := 0; y < RowSize; y++ {
 				if s.possGrid[x][y].possibilities[z] {
 					yCount++
 
@@ -445,7 +443,7 @@ func ruleXwingCol(s *Sudoku) (bool, int) {
 
 		if xCount == 2 {
 			found := false
-			for xx := 0; xx < rowSize; xx++ {
+			for xx := 0; xx < RowSize; xx++ {
 				if xx == foundX1 || xx == foundX2 {
 					continue
 				}

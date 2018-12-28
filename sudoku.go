@@ -7,7 +7,7 @@ import (
 
 const (
 	GridSize = 3
-	rowSize  = GridSize*GridSize
+	RowSize  = GridSize*GridSize
 
 	RuleSimple     = 1
 	RuleEasy       = 10
@@ -24,51 +24,46 @@ const (
 
 var (
 	ErrLoadSize = errors.New(fmt.Sprintf("incorrect number of items to load, expcted %d",
-		rowSize*rowSize))
-	ErrEmptyGrid   = errors.New("grid must not be empty")
+		RowSize*RowSize))
 	ErrCannotSolve = errors.New("puzzle is too complex to solve")
 	ErrImpossible  = errors.New("puzzle is impossible, broken")
 )
 
 type Possible struct {
 	count         int
-	possibilities [rowSize]bool
+	possibilities [RowSize]bool
 }
 
 type Sudoku struct {
-	Grid     [rowSize][rowSize]int
-	possGrid [rowSize][rowSize]Possible
+	Grid     [RowSize][RowSize]int
+	possGrid [RowSize][RowSize]Possible
 }
 
 func (s *Sudoku) Reset() {
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
-			s.Grid[x][y] = -1
-		}
-	}
+	forEachCell(s, func(val *int, possible *Possible) {
+		*val = -1
+	})
 
 	s.loadPossGrid()
 }
 
 func (s *Sudoku) Load(numbers string) error {
-	if len(numbers) != rowSize*rowSize {
+	if len(numbers) != RowSize*RowSize {
 		return ErrLoadSize
 	}
 
 	offset := 0
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
-			n := numbers[offset]
+	forEachPosition(func(x, y int) {
+		n := numbers[offset]
 
-			if n == '-' {
-				s.Grid[x][y] = -1
-			} else {
-				s.Grid[x][y] = int(n) - 48
-			}
-
-			offset++
+		if n == '-' {
+			s.Grid[x][y] = -1
+		} else {
+			s.Grid[x][y] = int(n) - 48
 		}
-	}
+
+		offset++
+	})
 
 	return nil
 }
@@ -76,25 +71,6 @@ func (s *Sudoku) Load(numbers string) error {
 func (s *Sudoku) Solve() (int, error) {
 	solved := true
 	broken := false
-
-	/* catch folk who might try and Solve an empty grid, it just wastes time */
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
-			if s.Grid[x][y] != -1 {
-				solved = false
-				break
-			}
-		}
-
-		if !solved {
-			break
-		}
-	}
-	if solved {
-		return ScoreImpossible, ErrEmptyGrid
-	}
-
-	solved = true
 	s.loadPossGrid()
 
 	score := 0
@@ -111,16 +87,14 @@ func (s *Sudoku) Solve() (int, error) {
 		}
 	}
 
-	for y := 0; y < rowSize; y++ {
-		for x := 0; x < rowSize; x++ {
-			if s.Grid[x][y] == -1 {
-				solved = false
-				if s.possGrid[x][y].count == 0 {
-					broken = true
-				}
+	forEachCell(s, func(val *int, possible *Possible) {
+		if *val == -1 {
+			solved = false
+			if possible.count == 0 {
+				broken = true
 			}
 		}
-	}
+	})
 
 	if !solved {
 		s.printPossGrid()
@@ -133,15 +107,15 @@ func (s *Sudoku) Solve() (int, error) {
 }
 
 func (s *Sudoku) Print() {
-	for y := 0; y < rowSize; y++ {
+	for y := 0; y < RowSize; y++ {
 		if y > 0 && (y%GridSize) == 0 {
-			for x := 0; x < rowSize+GridSize-1; x++ {
+			for x := 0; x < RowSize+GridSize-1; x++ {
 				fmt.Print("-")
 			}
 			fmt.Println()
 		}
 
-		for x := 0; x < rowSize; x++ {
+		for x := 0; x < RowSize; x++ {
 			if x > 0 && (x%GridSize) == 0 {
 				fmt.Print("|")
 			}
