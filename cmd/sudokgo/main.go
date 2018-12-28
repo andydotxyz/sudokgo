@@ -50,7 +50,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		if game.Load(args[1]) != nil {
+		if err := game.Load(args[1]); err != nil {
+			fmt.Println("Error during load:", err)
 			os.Exit(1)
 		}
 
@@ -61,7 +62,9 @@ func main() {
 		micro := time.Since(start).Round(time.Microsecond)
 
 		fmt.Println("Finished in ", micro)
-		if err == nil {
+		if err != nil {
+			fmt.Println("Error during solve:", err)
+		} else {
 			fmt.Printf("Difficulty score was %d (%s).\n", score, sudokgo.Difficulty(score))
 			game.Print()
 		}

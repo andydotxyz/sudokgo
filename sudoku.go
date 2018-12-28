@@ -22,6 +22,14 @@ const (
 	ScoreImpossible = 99999
 )
 
+var (
+	ErrLoadSize = errors.New(fmt.Sprintf("incorrect number of items to load, expcted %d",
+		RowSize*RowSize))
+	ErrEmptyGrid   = errors.New("grid must not be empty")
+	ErrCannotSolve = errors.New("puzzle is too complex to solve")
+	ErrImpossible  = errors.New("puzzle is impossible, broken")
+)
+
 type Possible struct {
 	count         int
 	possibilities [RowSize]bool
@@ -44,8 +52,7 @@ func (s *Sudoku) Reset() {
 
 func (s *Sudoku) Load(numbers string) error {
 	if len(numbers) != RowSize*RowSize {
-		fmt.Println("There must be", RowSize*RowSize, "numbers")
-		return errors.New("Incorrect number count")
+		return ErrLoadSize
 	}
 
 	offset := 0
@@ -84,8 +91,7 @@ func (s *Sudoku) Solve() (int, error) {
 		}
 	}
 	if solved {
-		fmt.Println("Empty grids cannot be solved!!!")
-		return ScoreImpossible, errors.New("Grid is empty")
+		return ScoreImpossible, ErrEmptyGrid
 	}
 
 	solved = true
@@ -117,12 +123,10 @@ func (s *Sudoku) Solve() (int, error) {
 	}
 
 	if !solved {
-		fmt.Println("Sorry Jim, I don't quite know how to do the rest...")
 		s.printPossGrid()
-		return ScoreImpossible, errors.New("Puzzle is too complex to Solve")
+		return ScoreImpossible, ErrCannotSolve
 	} else if broken {
-		fmt.Println("BROKEN - this puzzle is not possible")
-		return ScoreImpossible, errors.New("Puzzle is impossible, broken")
+		return ScoreImpossible, ErrImpossible
 	}
 
 	return score, nil
