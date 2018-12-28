@@ -12,7 +12,7 @@ import (
 
 func printUsage() {
 	fmt.Println("Usage: sudokgo {generate|solve} [parameters]")
-	fmt.Println("  generate takes no params and generates a sudoku puzzle")
+	fmt.Println("  generate takes an optional difficulty parameter (default is moderate)")
 	fmt.Println("  solve takes 1 parameter, the puzzle to solve, using numbers or dash 12-4-...")
 }
 
