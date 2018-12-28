@@ -11,10 +11,9 @@ import (
 )
 
 func printUsage() {
-	fmt.Println("Usage: sudokgo command [command-opts]")
-	fmt.Println("  where command is generate or solve")
-	fmt.Println("    generate takes no params and generates a sudoku puzzle")
-	fmt.Println("    solve takes 1 parameter, the list of numbers to make a puzzle and solves is")
+	fmt.Println("Usage: sudokgo {generate|solve} [parameters]")
+	fmt.Println("  generate takes no params and generates a sudoku puzzle")
+	fmt.Println("  solve takes 1 parameter, the puzzle to solve, using numbers or dash 12-4-...")
 }
 
 func main() {
