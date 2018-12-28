@@ -10,15 +10,15 @@ func (s *Sudoku) generateSolution() bool {
 	s.Reset()
 
 	rand.Seed(time.Now().UnixNano())
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			if s.possGrid[x][y].count == 0 {
 				return false
 			}
 
-			z := rand.Intn(RowSize)
+			z := rand.Intn(rowSize)
 			for !s.possGrid[x][y].possibilities[z] {
-				z = rand.Intn(RowSize)
+				z = rand.Intn(rowSize)
 			}
 
 			s.Grid[x][y] = z + 1
@@ -33,7 +33,7 @@ func (s *Sudoku) generateSolution() bool {
 }
 
 func (s *Sudoku) Generate(target int) bool {
-	var puzzle [RowSize][RowSize]int
+	var puzzle [rowSize][rowSize]int
 	retScore := 0
 	tries := 0
 
@@ -60,31 +60,31 @@ func (s *Sudoku) Generate(target int) bool {
 			tries++
 
 			/* precull some cells */
-			for y := 0; y < RowSize; y++ {
-				for x := 0; x < RowSize; x++ {
+			for y := 0; y < rowSize; y++ {
+				for x := 0; x < rowSize; x++ {
 					if rand.Intn(3) == 0 {
 						s.Grid[x][y] = -1
-						for z := 0; z < RowSize; z++ {
+						for z := 0; z < rowSize; z++ {
 							s.possGrid[x][y].possibilities[z] = true
 						}
-						s.possGrid[x][y].count = RowSize
+						s.possGrid[x][y].count = rowSize
 					}
 				}
 			}
 
 			for retScore < target {
-				x := rand.Intn(RowSize)
-				y := rand.Intn(RowSize)
+				x := rand.Intn(rowSize)
+				y := rand.Intn(rowSize)
 
 				if s.Grid[x][y] == -1 {
 					continue
 				}
 
 				s.Grid[x][y] = -1
-				for z := 0; z < RowSize; z++ {
+				for z := 0; z < rowSize; z++ {
 					s.possGrid[x][y].possibilities[z] = true
 				}
-				s.possGrid[x][y].count = RowSize
+				s.possGrid[x][y].count = rowSize
 				puzzle = s.Grid
 
 				score, err := s.Solve()

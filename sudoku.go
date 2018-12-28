@@ -7,7 +7,7 @@ import (
 
 const (
 	GridSize = 3
-	RowSize  = 9
+	rowSize  = GridSize*GridSize
 
 	RuleSimple     = 1
 	RuleEasy       = 10
@@ -24,7 +24,7 @@ const (
 
 var (
 	ErrLoadSize = errors.New(fmt.Sprintf("incorrect number of items to load, expcted %d",
-		RowSize*RowSize))
+		rowSize*rowSize))
 	ErrEmptyGrid   = errors.New("grid must not be empty")
 	ErrCannotSolve = errors.New("puzzle is too complex to solve")
 	ErrImpossible  = errors.New("puzzle is impossible, broken")
@@ -32,17 +32,17 @@ var (
 
 type Possible struct {
 	count         int
-	possibilities [RowSize]bool
+	possibilities [rowSize]bool
 }
 
 type Sudoku struct {
-	Grid     [RowSize][RowSize]int
-	possGrid [RowSize][RowSize]Possible
+	Grid     [rowSize][rowSize]int
+	possGrid [rowSize][rowSize]Possible
 }
 
 func (s *Sudoku) Reset() {
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			s.Grid[x][y] = -1
 		}
 	}
@@ -51,13 +51,13 @@ func (s *Sudoku) Reset() {
 }
 
 func (s *Sudoku) Load(numbers string) error {
-	if len(numbers) != RowSize*RowSize {
+	if len(numbers) != rowSize*rowSize {
 		return ErrLoadSize
 	}
 
 	offset := 0
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			n := numbers[offset]
 
 			if n == '-' {
@@ -78,8 +78,8 @@ func (s *Sudoku) Solve() (int, error) {
 	broken := false
 
 	/* catch folk who might try and Solve an empty grid, it just wastes time */
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			if s.Grid[x][y] != -1 {
 				solved = false
 				break
@@ -111,8 +111,8 @@ func (s *Sudoku) Solve() (int, error) {
 		}
 	}
 
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			if s.Grid[x][y] == -1 {
 				solved = false
 				if s.possGrid[x][y].count == 0 {
@@ -133,15 +133,15 @@ func (s *Sudoku) Solve() (int, error) {
 }
 
 func (s *Sudoku) Print() {
-	for y := 0; y < RowSize; y++ {
+	for y := 0; y < rowSize; y++ {
 		if y > 0 && (y%GridSize) == 0 {
-			for x := 0; x < RowSize+GridSize-1; x++ {
+			for x := 0; x < rowSize+GridSize-1; x++ {
 				fmt.Print("-")
 			}
 			fmt.Println()
 		}
 
-		for x := 0; x < RowSize; x++ {
+		for x := 0; x < rowSize; x++ {
 			if x > 0 && (x%GridSize) == 0 {
 				fmt.Print("|")
 			}

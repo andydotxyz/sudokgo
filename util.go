@@ -3,24 +3,24 @@ package sudokgo
 import "fmt"
 
 func (s *Sudoku) loadPossGrid() {
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			if s.Grid[x][y] == -1 {
-				s.possGrid[x][y].count = RowSize
-				for z := 0; z < RowSize; z++ {
+				s.possGrid[x][y].count = rowSize
+				for z := 0; z < rowSize; z++ {
 					s.possGrid[x][y].possibilities[z] = true
 				}
 			} else {
 				s.possGrid[x][y].count = 0
-				for z := 0; z < RowSize; z++ {
+				for z := 0; z < rowSize; z++ {
 					s.possGrid[x][y].possibilities[z] = false
 				}
 			}
 		}
 	}
 
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			s.updatePossibilities(x, y)
 		}
 	}
@@ -33,7 +33,7 @@ func (s *Sudoku) updatePossibilities(x, y int) {
 	//	cell := gridRef(x, y)
 	if a != -1 {
 		/* delete the possibility from the rest of the row... */
-		for zx := 0; zx < RowSize; zx++ {
+		for zx := 0; zx < rowSize; zx++ {
 			if zx == x {
 				continue
 			}
@@ -46,7 +46,7 @@ func (s *Sudoku) updatePossibilities(x, y int) {
 		}
 
 		/* delete the possibility from the rest of the col... */
-		for zy = 0; zy < RowSize; zy++ {
+		for zy = 0; zy < rowSize; zy++ {
 			if zy == y {
 				continue
 			}
@@ -82,23 +82,23 @@ func (s *Sudoku) updatePossibilities(x, y int) {
 
 func (s *Sudoku) printPossGrid() {
 	size := 0
-	for y := 0; y < RowSize; y++ {
-		for x := 0; x < RowSize; x++ {
+	for y := 0; y < rowSize; y++ {
+		for x := 0; x < rowSize; x++ {
 			if s.possGrid[x][y].count > size {
 				size = s.possGrid[x][y].count
 			}
 		}
 	}
 
-	for y := 0; y < RowSize; y++ {
+	for y := 0; y < rowSize; y++ {
 		if y > 0 && (y%GridSize) == 0 {
-			for x := 0; x < RowSize+GridSize-1; x++ {
+			for x := 0; x < rowSize+GridSize-1; x++ {
 				fmt.Print("-")
 			}
 			fmt.Println()
 		}
 
-		for x := 0; x < RowSize; x++ {
+		for x := 0; x < rowSize; x++ {
 			if x > 0 && (x%GridSize) == 0 {
 				fmt.Print("|")
 			}
@@ -121,7 +121,7 @@ func (s *Sudoku) printPossGrid() {
 }
 
 func possibleIntersects(seta, setb Possible) bool {
-	for i := 0; i < RowSize; i++ {
+	for i := 0; i < rowSize; i++ {
 		if seta.possibilities[i] {
 			if setb.possibilities[i] {
 				return true
@@ -132,7 +132,7 @@ func possibleIntersects(seta, setb Possible) bool {
 }
 
 func possibleIntersect(modify *Possible, reference Possible) {
-	for i := 0; i < RowSize; i++ {
+	for i := 0; i < rowSize; i++ {
 		if !reference.possibilities[i] {
 			if (*modify).possibilities[i] {
 				(*modify).possibilities[i] = false
@@ -182,7 +182,7 @@ func Score(difficulty string) int {
 func printPossible(in Possible) int {
 	printed := 0
 
-	for i := 0; i < RowSize; i++ {
+	for i := 0; i < rowSize; i++ {
 		if in.possibilities[i] {
 			fmt.Print(i + 1)
 			printed++
