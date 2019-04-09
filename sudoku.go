@@ -7,7 +7,7 @@ import (
 
 const (
 	GridSize = 3
-	RowSize  = GridSize*GridSize
+	RowSize  = GridSize * GridSize
 
 	RuleSimple     = 1
 	RuleEasy       = 10
