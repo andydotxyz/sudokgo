@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
+	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 
 	"github.com/andydotxyz/sudokgo"
@@ -13,6 +14,7 @@ import (
 
 type gui struct {
 	sudoku *sudokgo.Sudoku
+	score  *widget.Label
 	cells  [sudokgo.RowSize][sudokgo.RowSize]*widget.Entry
 }
 
@@ -26,7 +28,7 @@ func main() {
 	content := gui.LoadUI()
 	go gui.generate()
 
-	win := a.NewWindow("Sudoku")
+	win := a.NewWindow("SudokGo")
 	win.SetIcon(sudokuIcon)
 	win.SetContent(content)
 	win.ShowAndRun()
@@ -58,18 +60,18 @@ func (g *gui) refresh() {
 	}
 }
 
-func (g *gui) loadButtons() fyne.CanvasObject {
-	random := widget.NewButton("Random", func() {
-		g.generate()
-	})
-	solve := widget.NewButton("Solve", func() {
-		g.solve()
-	})
-	reset := widget.NewButton("Reset", func() {
-		g.reset()
-	})
+func (g *gui) loadToolbar() *widget.Toolbar {
+	score := newToolbarText("")
+	g.score = score.(*toolbarText).text
+	return widget.NewToolbar(
+		widget.NewToolbarAction(theme.FileIcon(), g.generate),
 
-	return widget.NewHBox(random, layout.NewSpacer(), solve, reset)
+		widget.NewToolbarSpacer(),
+		score,
+		widget.NewToolbarSpacer(),
+
+		widget.NewToolbarAction(theme.MediaSkipNextIcon(), g.solve),
+		widget.NewToolbarAction(theme.ViewRefreshIcon(), g.reset))
 }
 
 func (g *gui) LoadUI() fyne.CanvasObject {
@@ -78,14 +80,16 @@ func (g *gui) LoadUI() fyne.CanvasObject {
 		g.newRow(cells, i)
 	}
 
-	buttons := g.loadButtons()
+	toolbar := g.loadToolbar()
 
-	return fyne.NewContainerWithLayout(layout.NewBorderLayout(nil, buttons, nil, nil),
-		buttons, cells)
+	return fyne.NewContainerWithLayout(layout.NewBorderLayout(toolbar, nil, nil, nil),
+		toolbar, cells)
 }
 
 func (g *gui) generate() {
-	g.sudoku.Generate(sudokgo.ScoreEasy)
+	difficulty := sudokgo.ScoreEasy
+	score := g.sudoku.Generate(difficulty)
+	g.score.SetText(fmt.Sprintf("%s (%d)", sudokgo.Difficulty(difficulty), score))
 	g.refresh()
 }
 
@@ -96,6 +100,18 @@ func (g *gui) solve() {
 
 func (g *gui) reset() {
 	g.refresh()
+}
+
+type toolbarText struct {
+	text *widget.Label
+}
+
+func (t *toolbarText) ToolbarObject() fyne.CanvasObject {
+	return t.text
+}
+
+func newToolbarText(text string) widget.ToolbarItem {
+	return &toolbarText{text: widget.NewLabel(text)}
 }
 
 func newGUI(s *sudokgo.Sudoku) *gui {

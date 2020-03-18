@@ -33,7 +33,7 @@ func (s *Sudoku) generateSolution() bool {
 	return true
 }
 
-func (s *Sudoku) Generate(target int) bool {
+func (s *Sudoku) Generate(target int) int {
 	var puzzle [RowSize][RowSize]int
 	retScore := 0
 	tries := 0
@@ -115,5 +115,5 @@ func (s *Sudoku) Generate(target int) bool {
 
 	s.printOutput("Generated grid with difficulty", Difficulty(retScore), "after",
 		tries+(multiples*25), "attempts.")
-	return true
+	return retScore
 }
