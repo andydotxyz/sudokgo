@@ -107,7 +107,7 @@ func (s *Sudoku) Generate(target int) bool {
 			}
 		}
 		if !passes {
-			s.printOutput("Tried too many times, generating a new soluition")
+			s.printOutput("Tried too many times, generating a new solution")
 			multiples++
 		}
 	}
