@@ -5,13 +5,41 @@ This rules based solver also describes the steps to solve to aid in learning.
 
 (This includes a very slow generator that is a work in progress.)
 
-## Usage - Solve
+## Usage
+
+The sudokgo app as 3 different modes - solve and generate, for command line
+usage, and gui - for playing a sudoku game. 
+
+### GUI
+
+You can run the gui from the source code:
+
+```
+$ cd cmd/gui
+$ go run .
+```
+
+Or you can package it as an application using the fyne package tool:
+
+```
+$ go get fyne.io/fyne/cmd/fyne
+$ cd cmd/gui
+$ fyne package -icon ../../sudoku.png -name SudokGo
+```
+
+### Solve
 
 The solver takes the puzzle as a string input, a string of 81 characters
 that are either the numbers 1-9 or a dash for a blank.
+It can run in simple mode (default) where it just returns the answer, or
+you can use verbose (-v) and human readable (-h) commands to list the reasoning
+to solve a puzzle.
 
 ```
 $ sudokgo solve -9-6-4---54-78-2-978--291-----9--8-3----6-------8---7---4--6-5---5247---1----8-2-   
+291634785546781239783529146412975863378462591659813472824196357935247618167358924
+
+$ sudokgo -h -v solve -9-6-4---54-78-2-978--291-----9--8-3----6-------8---7---4--6-5---5247---1----8-2-   
 
  9 |6 4|   
 54 |78 |2 9
@@ -100,15 +128,14 @@ Difficulty score was 24041 (diabolical).
 
 ```
 
-## Usage - Generate
+### Generate
 
 The generator is currently very simple and takes an optional second argument
 that is the difficulty to produce. The default difficulty (if omitted) is
 moderate.
 
 ```
-$ sudokgo generate simple
-Generated grid with difficulty simple after 1 attempts.
+$ sudokgo -h generate simple
 5  |3  | 82
  42|961|57 
 9 7|25 |64 
