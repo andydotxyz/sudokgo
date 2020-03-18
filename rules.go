@@ -1,9 +1,5 @@
 package sudokgo
 
-import (
-	"fmt"
-)
-
 var rules []func(*Sudoku) (bool, int)
 
 func init() {
@@ -29,7 +25,7 @@ func ruleLastPossibility(s *Sudoku) (bool, int) {
 						s.possGrid[x][y].possibilities[z] = false
 						s.possGrid[x][y].count = 0
 
-						fmt.Println(gridRef(x, y), z+1, "is the last possibility")
+						s.printOutput(gridRef(x, y), z+1, "is the last possibility")
 						s.updatePossibilities(x, y)
 						return true, RuleSimple
 					}
@@ -64,7 +60,7 @@ func ruleOnlyPossiblePlaceInRow(s *Sudoku) (bool, int) {
 					s.possGrid[lastPlace][y].possibilities[a] = false
 				}
 				s.possGrid[lastPlace][y].count = 0
-				fmt.Println(gridRef(lastPlace, y), "must be", z+1, "it is the only possible place in the row")
+				s.printOutput(gridRef(lastPlace, y), "must be", z+1, "it is the only possible place in the row")
 
 				s.updatePossibilities(lastPlace, y)
 				return true, RuleEasy
@@ -98,7 +94,7 @@ func ruleOnlyPossiblePlaceInCol(s *Sudoku) (bool, int) {
 					s.possGrid[x][lastPlace].possibilities[a] = false
 				}
 				s.possGrid[x][lastPlace].count = 0
-				fmt.Println(gridRef(x, lastPlace), "must be", z+1, "it is the only possible place in the column")
+				s.printOutput(gridRef(x, lastPlace), "must be", z+1, "it is the only possible place in the column")
 				s.updatePossibilities(x, lastPlace)
 				return true, RuleEasy
 			}
@@ -135,7 +131,7 @@ func ruleOnlyPossiblePlaceInBox(s *Sudoku) (bool, int) {
 						s.possGrid[lastPlaceX][lastPlaceY].possibilities[a] = false
 					}
 					s.possGrid[lastPlaceX][lastPlaceY].count = 0
-					fmt.Println(gridRef(lastPlaceX, lastPlaceY), "must be", z+1, "it is the only possible place in the box")
+					s.printOutput(gridRef(lastPlaceX, lastPlaceY), "must be", z+1, "it is the only possible place in the box")
 					s.updatePossibilities(lastPlaceX, lastPlaceY)
 					return true, RuleEasy
 				}
@@ -176,7 +172,7 @@ func ruleMustBeInCertainBox(s *Sudoku) (bool, int) {
 						if xx < x || xx >= x+GridSize {
 							/* if not in that box, remove */
 							if s.possGrid[xx][row].possibilities[z] {
-								fmt.Println(gridRef(xx, row), "cannot be", z+1, "as it must appear elsewhere in the row")
+								s.printOutput(gridRef(xx, row), "cannot be", z+1, "as it must appear elsewhere in the row")
 								s.possGrid[xx][row].possibilities[z] = false
 								s.possGrid[xx][row].count--
 								return true, RuleMedium
@@ -189,7 +185,7 @@ func ruleMustBeInCertainBox(s *Sudoku) (bool, int) {
 						if yy < y || yy >= y+GridSize {
 							/* if not in that box, remove */
 							if s.possGrid[col][yy].possibilities[z] {
-								fmt.Println(gridRef(col, yy), "cannot be", z+1, "as it must appear elsewhere in the column")
+								s.printOutput(gridRef(col, yy), "cannot be", z+1, "as it must appear elsewhere in the column")
 								s.possGrid[col][yy].possibilities[z] = false
 								s.possGrid[col][yy].count--
 								return true, RuleMedium
@@ -240,7 +236,7 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 					if subset.count < s.possGrid[xx][y].count &&
 						possibleIntersects(subset, s.possGrid[xx][y]) {
 						possibleIntersect(&s.possGrid[xx][y], subset)
-						fmt.Println(gridRef(xx, y), "subset", subsetstr, "cycle on row, eliminate extras")
+						s.printOutput(gridRef(xx, y), "subset", subsetstr, "cycle on row, eliminate extras")
 						score += RuleHard
 					}
 				}
@@ -258,7 +254,7 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 					if subset.count < s.possGrid[x][yy].count &&
 						possibleIntersects(subset, s.possGrid[x][yy]) {
 						possibleIntersect(&s.possGrid[x][yy], subset)
-						fmt.Println(gridRef(x, yy), "subset", subsetstr, "cycle on col, eliminate extras")
+						s.printOutput(gridRef(x, yy), "subset", subsetstr, "cycle on col, eliminate extras")
 						score += ScoreHard
 					}
 				}
@@ -282,7 +278,7 @@ func ruleEliminateSubsetExtrasSlave(s *Sudoku, set Possible, x, y int) (bool, in
 						if subset.count < s.possGrid[xx][yy].count &&
 							possibleIntersects(subset, s.possGrid[xx][yy]) {
 							possibleIntersect(&s.possGrid[xx][yy], subset)
-							fmt.Println(gridRef(xx, yy), "subset", subsetstr, "cycle on box, eliminate extras")
+							s.printOutput(gridRef(xx, yy), "subset", subsetstr, "cycle on box, eliminate extras")
 							score += RuleHard
 						}
 					}
@@ -381,7 +377,7 @@ func ruleXwingRow(s *Sudoku) (bool, int) {
 			}
 
 			if found {
-				fmt.Println("XWING rows found with diagonals", gridRef(foundX1, foundY1), "and",
+				s.printOutput("XWING rows found with diagonals", gridRef(foundX1, foundY1), "and",
 					gridRef(foundX2, foundY2), "- eliminating", z+1, "on cols")
 
 				return true, RuleDiabolical
@@ -462,7 +458,7 @@ func ruleXwingCol(s *Sudoku) (bool, int) {
 			}
 
 			if found {
-				fmt.Println("XWING cols found with diagonals", gridRef(foundX1, foundY1), "and",
+				s.printOutput("XWING cols found with diagonals", gridRef(foundX1, foundY1), "and",
 					gridRef(foundX2, foundY2), "- eliminating", z+1, "on rows")
 				return true, RuleDiabolical
 			}

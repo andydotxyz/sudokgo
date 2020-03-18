@@ -37,6 +37,7 @@ type Possible struct {
 type Sudoku struct {
 	Grid     [RowSize][RowSize]int
 	possGrid [RowSize][RowSize]Possible
+	Verbose  bool
 }
 
 func (s *Sudoku) Reset() {
@@ -97,7 +98,9 @@ func (s *Sudoku) Solve() (int, error) {
 	})
 
 	if !solved {
-		s.printPossGrid()
+		if s.Verbose {
+			s.printPossGrid()
+		}
 		return ScoreImpossible, ErrCannotSolve
 	} else if broken {
 		return ScoreImpossible, ErrImpossible
@@ -129,6 +132,21 @@ func (s *Sudoku) Print() {
 
 		fmt.Println()
 	}
+}
+
+func (s *Sudoku) String() string {
+	out := ""
+	for y := 0; y < RowSize; y++ {
+		for x := 0; x < RowSize; x++ {
+			if s.Grid[x][y] == -1 {
+				out += "-"
+			} else {
+				out += fmt.Sprintf("%d", s.Grid[x][y])
+			}
+		}
+	}
+
+	return out
 }
 
 func NewSudoku() *Sudoku {

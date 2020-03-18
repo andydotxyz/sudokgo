@@ -1,7 +1,6 @@
 package sudokgo
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -28,7 +27,9 @@ func (s *Sudoku) generateSolution() bool {
 		}
 	}
 
-	s.Print()
+	if s.Verbose {
+		s.Print()
+	}
 	return true
 }
 
@@ -45,7 +46,7 @@ func (s *Sudoku) Generate(target int) bool {
 		for !s.generateSolution() {
 			z++
 		}
-		fmt.Println(z, "attempts to get a solution")
+		s.printOutput(z, "attempts to get a solution")
 
 		/* generate was OK, now eliminate */
 		retScore = 0
@@ -55,7 +56,7 @@ func (s *Sudoku) Generate(target int) bool {
 		for !passes && tries < 25 {
 			/* reset for another pass */
 			s.Grid = soln
-			s.Print()
+			//			s.Print()
 			s.loadPossGrid()
 			tries++
 
@@ -87,12 +88,12 @@ func (s *Sudoku) Generate(target int) bool {
 
 				score, err := s.Solve()
 				if err != nil {
-					fmt.Println("UNSOLVABLE - rolling back")
+					s.printOutput("UNSOLVABLE - rolling back")
 					broken = true
 					break
 				}
 				if score >= target {
-					fmt.Println("Complexity met - rolling back and returning")
+					s.printOutput("Complexity met - rolling back and returning")
 					passes = true
 					break
 				}
@@ -102,17 +103,17 @@ func (s *Sudoku) Generate(target int) bool {
 			}
 
 			if !passes && !broken {
-				fmt.Println("Generated puzzle not complex enough", Difficulty(retScore), "trying another")
+				s.printOutput("Generated puzzle not complex enough", Difficulty(retScore), "trying another")
 			}
 		}
 		if !passes {
-			fmt.Println("Tried too many times, generating a new soluition")
+			s.printOutput("Tried too many times, generating a new soluition")
 			multiples++
 		}
 	}
 	s.Grid = puzzle
 
-	fmt.Println("Generated grid with difficulty", Difficulty(retScore), "after",
+	s.printOutput("Generated grid with difficulty", Difficulty(retScore), "after",
 		tries+(multiples*25), "attempts.")
 	return true
 }

@@ -11,16 +11,20 @@ import (
 )
 
 func printUsage() {
-	fmt.Println("Usage: sudokgo {generate|solve} [parameters]")
+	fmt.Println("Usage: sudokgo [-h] {generate|solve} [parameters]")
 	fmt.Println("  generate takes an optional difficulty parameter (default is moderate)")
 	fmt.Println("  solve takes 1 parameter, the puzzle to solve, using numbers or dash 12-4-...")
+	fmt.Println("  -h prints human readable grids instead of a number list on 1 line")
 }
 
 func main() {
 	flag.Usage = printUsage
+	pretty := flag.Bool("h", false, "Print human readable grids instead of a number list on 1 line")
+	verbose := flag.Bool("v", false, "Print verbose information and hints")
 	flag.Parse()
 
 	game := sudokgo.NewSudoku()
+	game.Verbose = *verbose
 	args := flag.Args()
 	if len(args) == 0 {
 		flag.Usage()
@@ -41,9 +45,8 @@ func main() {
 			fmt.Println("Generating a moderate puzzle")
 		}
 
-		fmt.Println("Score,", score)
 		game.Generate(score)
-		game.Print()
+		printStringOrGrid(game, *pretty)
 	} else if args[0] == "solve" {
 		if len(args) < 2 {
 			fmt.Println("solve command needs an extra option, the grid to solve (e.g. 12-3-4 etc)")
@@ -55,18 +58,30 @@ func main() {
 			os.Exit(1)
 		}
 
-		game.Print()
+		if *verbose {
+			printStringOrGrid(game, *pretty)
+		}
 
 		start := time.Now()
 		score, err := game.Solve()
 		micro := time.Since(start).Round(time.Microsecond)
 
-		fmt.Println("Finished in ", micro)
 		if err != nil {
 			fmt.Println("Error during solve:", err)
 		} else {
-			fmt.Printf("Difficulty score was %d (%s).\n", score, sudokgo.Difficulty(score))
-			game.Print()
+			if *verbose {
+				fmt.Println("Finished in ", micro)
+				fmt.Printf("Difficulty score was %d (%s).\n", score, sudokgo.Difficulty(score))
+			}
+			printStringOrGrid(game, *pretty)
 		}
+	}
+}
+
+func printStringOrGrid(s *sudokgo.Sudoku, pretty bool) {
+	if pretty {
+		s.Print()
+	} else {
+		fmt.Println(s.String())
 	}
 }

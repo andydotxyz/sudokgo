@@ -186,6 +186,14 @@ func printPossible(in Possible) int {
 	return printed
 }
 
+func (s *Sudoku) printOutput(a ...interface{}) {
+	if !s.Verbose {
+		return
+	}
+
+	fmt.Println(a...)
+}
+
 func forEachPosition(each func(x, y int)) {
 	for y := 0; y < RowSize; y++ {
 		for x := 0; x < RowSize; x++ {
