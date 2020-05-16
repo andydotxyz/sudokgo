@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
+	"fyne.io/fyne/canvas"
+	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
@@ -41,9 +44,30 @@ func (g *gui) newCell(x, y int) *widget.Entry {
 	return entry
 }
 
-func (g *gui) newRow(c *fyne.Container, y int) {
+func (g *gui) newSubGrid(c *fyne.Container, x, y int) {
+		grid := fyne.NewContainerWithLayout(layout.NewGridLayout(sudokgo.GridSize))
+		c.AddObject(fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+			canvas.NewRectangle(theme.BackgroundColor()), grid))
+
+		for j := 0; j < sudokgo.GridSize; j++ {
+			for i := 0; i < sudokgo.GridSize; i++ {
+				grid.AddObject(g.newCell(x+i, y+j))
+			}
+		}
+
+}
+
+func (g *gui) makeGrid(cells *fyne.Container) {
+	// make the sub-grids
+	x, y := 0, 0
 	for i := 0; i < sudokgo.RowSize; i++ {
-		c.AddObject(g.newCell(i, y))
+		g.newSubGrid(cells, x, y)
+
+		x += sudokgo.GridSize
+		if x == sudokgo.RowSize {
+			y += sudokgo.GridSize
+			x = 0
+		}
 	}
 }
 
@@ -76,16 +100,15 @@ func (g *gui) loadToolbar() *widget.Toolbar {
 		widget.NewToolbarAction(theme.ViewRefreshIcon(), g.reset))
 }
 
-func (g *gui) LoadUI() fyne.CanvasObject {
-	cells := fyne.NewContainerWithLayout(layout.NewGridLayout(sudokgo.RowSize))
-	for i := 0; i < sudokgo.RowSize; i++ {
-		g.newRow(cells, i)
-	}
+func (g *gui) LoadUI(win fyne.Window) fyne.CanvasObject {
+	g.win = win
+	cells := fyne.NewContainerWithLayout(layout.NewGridLayout(sudokgo.GridSize))
+	g.makeGrid(cells)
 
 	toolbar := g.loadToolbar()
 
 	return fyne.NewContainerWithLayout(layout.NewBorderLayout(toolbar, nil, nil, nil),
-		toolbar, cells)
+		toolbar, fyne.NewContainerWithLayout(layout.NewMaxLayout(), canvas.NewRectangle(color.Black), cells))
 }
 
 func (g *gui) generate() {
