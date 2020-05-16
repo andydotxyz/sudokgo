@@ -137,6 +137,7 @@ func (g *gui) submit() {
 		}
 	}
 
+	g.sudoku.Solve()
 	for x := 0; x < sudokgo.RowSize; x++ {
 		for y := 0; y < sudokgo.RowSize; y++ {
 			entry := g.cells[x][y]
