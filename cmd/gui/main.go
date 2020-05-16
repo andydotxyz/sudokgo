@@ -15,6 +15,7 @@ import (
 type gui struct {
 	sudoku *sudokgo.Sudoku
 	score  *widget.Label
+	win    fyne.Window
 	cells  [sudokgo.RowSize][sudokgo.RowSize]*widget.Entry
 }
 
@@ -25,10 +26,10 @@ func main() {
 	game := sudokgo.NewSudoku()
 	gui := newGUI(game)
 
-	content := gui.LoadUI()
+	win := a.NewWindow("SudokGo")
+	content := gui.LoadUI(win)
 	go gui.generate()
 
-	win := a.NewWindow("SudokGo")
 	win.SetIcon(sudokuIcon)
 	win.SetContent(content)
 	win.ShowAndRun()
@@ -65,6 +66,7 @@ func (g *gui) loadToolbar() *widget.Toolbar {
 	g.score = score.(*toolbarText).text
 	return widget.NewToolbar(
 		widget.NewToolbarAction(theme.FileIcon(), g.generate),
+		widget.NewToolbarAction(theme.ConfirmIcon(), g.submit),
 
 		widget.NewToolbarSpacer(),
 		score,
@@ -96,6 +98,33 @@ func (g *gui) generate() {
 func (g *gui) solve() {
 	g.sudoku.Solve()
 	g.refresh()
+}
+
+func (g *gui) submit() {
+	for x := 0; x < sudokgo.RowSize; x++ {
+		for y := 0; y < sudokgo.RowSize; y++ {
+			entry := g.cells[x][y]
+
+			if entry.Text == "" {
+				dialog.ShowInformation("Verify puzzle", "Not all cells completed", g.win)
+				return
+			}
+		}
+	}
+
+	for x := 0; x < sudokgo.RowSize; x++ {
+		for y := 0; y < sudokgo.RowSize; y++ {
+			entry := g.cells[x][y]
+			value := g.sudoku.Grid[x][y]
+
+			if entry.Text != fmt.Sprintf("%d", value) {
+				dialog.ShowInformation("Verify puzzle", "Error in puzzle values", g.win)
+				return
+			}
+		}
+	}
+
+	dialog.ShowInformation("Verify puzzle", "Congratulations on completing the puzzle", g.win)
 }
 
 func (g *gui) reset() {
