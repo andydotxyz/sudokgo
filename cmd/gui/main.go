@@ -78,8 +78,10 @@ func (g *gui) refresh() {
 			value := g.sudoku.Grid[x][y]
 			if value == -1 {
 				entry.SetText("")
+				entry.Enable()
 			} else {
 				entry.SetText(fmt.Sprintf("%d", value))
+				entry.Disable()
 			}
 		}
 	}
