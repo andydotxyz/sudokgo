@@ -22,6 +22,25 @@ type gui struct {
 	cells  [sudokgo.RowSize][sudokgo.RowSize]*widget.Entry
 }
 
+func (g *gui) Layout(objects []fyne.CanvasObject, size fyne.Size) {
+	s := fyne.Min(size.Width, size.Height)
+	offsetX := 0
+	if s < size.Width {
+		offsetX = (size.Width - s)/2
+	}
+
+	childSize := fyne.NewSize(s, s)
+	childPos := fyne.NewPos(offsetX, 0)
+	for _, o := range objects {
+		o.Resize(childSize)
+		o.Move(childPos)
+	}
+}
+
+func (g *gui) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	return fyne.NewSize(350, 350)
+}
+
 // Show starts a new sudoku UI
 func main() {
 	a := app.New()
@@ -108,9 +127,9 @@ func (g *gui) LoadUI(win fyne.Window) fyne.CanvasObject {
 	g.makeGrid(cells)
 
 	toolbar := g.loadToolbar()
-
+	content := fyne.NewContainerWithLayout(g, canvas.NewRectangle(color.Black), cells)
 	return fyne.NewContainerWithLayout(layout.NewBorderLayout(toolbar, nil, nil, nil),
-		toolbar, fyne.NewContainerWithLayout(layout.NewMaxLayout(), canvas.NewRectangle(color.Black), cells))
+		toolbar, content)
 }
 
 func (g *gui) generate() {
