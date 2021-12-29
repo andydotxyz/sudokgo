@@ -90,17 +90,21 @@ func (g *gui) makeGrid(cells *fyne.Container) {
 	}
 }
 
-func (g *gui) refresh() {
+func (g *gui) refresh(updateDisabled bool) {
 	for x := 0; x < sudokgo.RowSize; x++ {
 		for y := 0; y < sudokgo.RowSize; y++ {
 			entry := g.cells[x][y]
 			value := g.sudoku.Grid[x][y]
 			if value == -1 {
 				entry.SetText("")
-				entry.Enable()
+				if updateDisabled {
+					entry.Enable()
+				}
 			} else {
 				entry.SetText(fmt.Sprintf("%d", value))
-				entry.Disable()
+				if updateDisabled {
+					entry.Disable()
+				}
 			}
 		}
 	}
@@ -136,12 +140,12 @@ func (g *gui) generate() {
 	difficulty := sudokgo.ScoreEasy
 	score := g.sudoku.Generate(difficulty)
 	g.score.SetText(fmt.Sprintf("%s (%d)", sudokgo.Difficulty(difficulty), score))
-	g.refresh()
+	g.refresh(true)
 }
 
 func (g *gui) solve() {
 	g.sudoku.Solve()
-	g.refresh()
+	g.refresh(false)
 }
 
 func (g *gui) submit() {
@@ -173,7 +177,15 @@ func (g *gui) submit() {
 }
 
 func (g *gui) reset() {
-	g.refresh()
+	for x := 0; x < sudokgo.RowSize; x++ {
+		for y := 0; y < sudokgo.RowSize; y++ {
+			entry := g.cells[x][y]
+
+			if !entry.Disabled() {
+				entry.SetText("")
+			}
+		}
+	}
 }
 
 type toolbarText struct {
