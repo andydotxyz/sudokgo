@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"image/color"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/dialog"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/andydotxyz/sudokgo"
 )
@@ -24,7 +24,7 @@ type gui struct {
 
 func (g *gui) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 	s := fyne.Min(size.Width, size.Height)
-	offsetX := 0
+	offsetX := float32(0)
 	if s < size.Width {
 		offsetX = (size.Width - s)/2
 	}
