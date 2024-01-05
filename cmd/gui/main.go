@@ -7,8 +7,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -26,7 +26,7 @@ func (g *gui) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 	s := fyne.Min(size.Width, size.Height)
 	offsetX := float32(0)
 	if s < size.Width {
-		offsetX = (size.Width - s)/2
+		offsetX = (size.Width - s) / 2
 	}
 
 	childSize := fyne.NewSize(s, s)
@@ -37,7 +37,7 @@ func (g *gui) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 	}
 }
 
-func (g *gui) MinSize(objects []fyne.CanvasObject) fyne.Size {
+func (g *gui) MinSize(_ []fyne.CanvasObject) fyne.Size {
 	return fyne.NewSize(350, 350)
 }
 
@@ -64,15 +64,15 @@ func (g *gui) newCell(x, y int) *widget.Entry {
 }
 
 func (g *gui) newSubGrid(c *fyne.Container, x, y int) {
-		grid := fyne.NewContainerWithLayout(layout.NewGridLayout(sudokgo.GridSize))
-		c.AddObject(fyne.NewContainerWithLayout(layout.NewMaxLayout(),
-			canvas.NewRectangle(theme.BackgroundColor()), grid))
+	grid := container.NewGridWithColumns(sudokgo.GridSize)
+	c.Add(container.NewStack(
+		canvas.NewRectangle(theme.BackgroundColor()), grid))
 
-		for j := 0; j < sudokgo.GridSize; j++ {
-			for i := 0; i < sudokgo.GridSize; i++ {
-				grid.AddObject(g.newCell(x+i, y+j))
-			}
+	for j := 0; j < sudokgo.GridSize; j++ {
+		for i := 0; i < sudokgo.GridSize; i++ {
+			grid.Add(g.newCell(x+i, y+j))
 		}
+	}
 
 }
 
@@ -127,13 +127,13 @@ func (g *gui) loadToolbar() *widget.Toolbar {
 
 func (g *gui) LoadUI(win fyne.Window) fyne.CanvasObject {
 	g.win = win
-	cells := fyne.NewContainerWithLayout(layout.NewGridLayout(sudokgo.GridSize))
+	cells := container.NewGridWithColumns(sudokgo.GridSize)
 	g.makeGrid(cells)
 
 	toolbar := g.loadToolbar()
-	content := fyne.NewContainerWithLayout(g, canvas.NewRectangle(color.Black), cells)
-	return fyne.NewContainerWithLayout(layout.NewBorderLayout(toolbar, nil, nil, nil),
-		toolbar, content)
+	content := container.New(g, canvas.NewRectangle(color.Black), cells)
+	return container.NewBorder(toolbar, nil, nil, nil,
+		content)
 }
 
 func (g *gui) generate() {
@@ -144,7 +144,7 @@ func (g *gui) generate() {
 }
 
 func (g *gui) solve() {
-	g.sudoku.Solve()
+	_, _ = g.sudoku.Solve()
 	g.refresh(false)
 }
 
@@ -160,7 +160,7 @@ func (g *gui) submit() {
 		}
 	}
 
-	g.sudoku.Solve()
+	_, _ = g.sudoku.Solve()
 	for x := 0; x < sudokgo.RowSize; x++ {
 		for y := 0; y < sudokgo.RowSize; y++ {
 			entry := g.cells[x][y]
